@@ -1,0 +1,140 @@
+class ATM:
+    def __init__(self):
+        self.balance = 0
+        self.pin = "1234"  # Default PIN for demonstration
+        self.is_authenticated = False
+        self.pin_attempts = 0
+        self.max_attempts = 3
+        self.transactions = []  # To store mini statement transactions
+
+    def authenticate(self):
+        while self.pin_attempts < self.max_attempts:
+            pin_attempt = input("Enter your PIN: ")
+
+            if pin_attempt == self.pin:
+                self.is_authenticated = True
+                print("✅ Authentication successful!")
+                self.pin_attempts = 0  # Reset attempts after successful login
+                return
+            else:
+                self.pin_attempts += 1
+                remaining_attempts = self.max_attempts - self.pin_attempts
+                print(f"❌ Invalid PIN. You have {remaining_attempts} attempts left.")
+
+        print("⚠️ Too many failed attempts. ATM locked.")
+        exit()
+
+    def record_transaction(self, transaction):
+        """Records each transaction for mini statement."""
+        if len(self.transactions) >= 5:
+            self.transactions.pop(0)  # Keep only the last 5 transactions
+        self.transactions.append(transaction)
+
+    def mini_statement(self):
+        """Displays the last 5 transactions."""
+        if self.is_authenticated:
+            if self.transactions:
+                print("\n=== Mini Statement ===")
+                for t in self.transactions:
+                    print(t)
+            else:
+                print("No recent transactions available.")
+        else:
+            print("Please authenticate first.")
+
+    def check_balance(self):
+        if self.is_authenticated:
+            print(f"💰 Your current balance is: ${self.balance:.2f}")
+        else:
+            print("Please authenticate first.")
+
+    def deposit(self):
+        if self.is_authenticated:
+            try:
+                amount = float(input("Enter the amount to deposit: $"))
+                if amount > 0:
+                    self.balance += amount
+                    print(f"✅ ${amount:.2f} deposited successfully.")
+                    self.record_transaction(f"Deposited: ${amount:.2f}")
+                else:
+                    print("❌ Invalid amount. Please enter a positive value.")
+            except ValueError:
+                print("❌ Invalid input. Please enter a valid number.")
+        else:
+            print("Please authenticate first.")
+
+    def withdraw(self):
+        if self.is_authenticated:
+            try:
+                amount = float(input("Enter the amount to withdraw: $"))
+                if amount > 0:
+                    if amount <= self.balance:
+                        self.balance -= amount
+                        print(f"✅ ${amount:.2f} withdrawn successfully.")
+                        self.record_transaction(f"Withdrawn: ${amount:.2f}")
+                    else:
+                        print("❌ Insufficient funds.")
+                else:
+                    print("❌ Invalid amount. Please enter a positive value.")
+            except ValueError:
+                print("❌ Invalid input. Please enter a valid number.")
+        else:
+            print("Please authenticate first.")
+
+    def pin_change(self):
+        if self.is_authenticated:
+            old_pin = input("Enter old PIN: ")
+
+            if self.pin == old_pin:
+                new_pin = input("Enter new PIN: ")
+
+                if len(new_pin) == 4 and new_pin.isdigit():
+                    self.pin = new_pin
+                    print("✅ PIN updated successfully!")
+                else:
+                    print("❌ Invalid PIN format. Use a 4-digit number.")
+            else:
+                print("❌ Invalid PIN. Please provide the correct PIN.")
+        else:
+            print("Please authenticate first.")
+
+    def exit_atm(self):
+        print("🏧 Thank you for using the ATM. Have a great day!")
+        exit()
+
+    def display_menu(self):
+        print("\n=== ATM Menu ===")
+        print("1. Check Balance")
+        print("2. Deposit Money")
+        print("3. Withdraw Money")
+        print("4. Mini Statement")
+        print("5. PIN Change")
+        print("6. Exit")
+
+    def run(self):
+        print("🏧 Welcome to the ATM!")
+        self.authenticate()
+
+        while True:
+            self.display_menu()
+            choice = input("Enter your choice: ")
+
+            if choice == "1":
+                self.check_balance()
+            elif choice == "2":
+                self.deposit()
+            elif choice == "3":
+                self.withdraw()
+            elif choice == "4":
+                self.mini_statement()
+            elif choice == "5":
+                self.pin_change()
+            elif choice == "6":
+                self.exit_atm()
+            else:
+                print("❌ Invalid choice. Please try again.")
+
+
+# Run the ATM
+atm = ATM()
+atm.run()
